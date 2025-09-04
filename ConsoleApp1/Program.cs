@@ -5,9 +5,9 @@
         static void Main(string[] args)
         {
             //== Message ==
-            string name = "Bryan";
+            string name = "Bryan Goh";
             string date = DateTime.Now.ToString("yyyy-MM-dd");
-            Console.WriteLine("Hello! this program was written by " + name + " on " +date+".\n" );
+            Console.WriteLine("Hello! this program was written by " + name + ". Today's Date is: " +date+".\n" );
 
             //== Base Legend ==
             Console.WriteLine("Legend");
@@ -21,7 +21,7 @@
             {
                 NumberFormatsConverter(num);
             }
-
+            
             Console.WriteLine(new String('-', 30));
             Console.WriteLine("Conversion completed! Goodbye!");
         }
