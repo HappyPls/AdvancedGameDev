@@ -58,24 +58,26 @@ namespace Lab3GameManager
             int a = 7, b = 5;
 
             Console.WriteLine("+  (addition): a + b = 7 + 5 = " + (a + b));
+            Console.WriteLine("addition: adds 1 value to another value");
             Console.WriteLine("-  (subtraction): a - b = 7 - 5 = " + (a - b));
+            Console.WriteLine("subtraction: subtracts 1 value from another value");
             Console.WriteLine("*  (multiplication): a * b = 7 * 5 = " + (a * b));
+            Console.WriteLine("multiplication: multiplies one value with another");
 
             int x = 7, y = 2;
-            Console.WriteLine("/  (division): 7 / 2 = " + (x / y) + " (integer division, truncates)");
-            Console.WriteLine("/  (division): 7 / 2.0 = " + (7 / 2.0) + " (double division, keeps decimals)");
+            Console.WriteLine("/  (division): 7 / 2 = " + (x / y));
+            Console.WriteLine("divides one value with another");
 
             int c = 3;
             Console.WriteLine("++ (increment): c starts 3; c++ returns " + (c++) + ", now c = " + c);
+            Console.WriteLine("increment: adds 1 to the value that it is attached to");
+
             int d = 3;
-            Console.WriteLine("++ (increment): ++d increments first: ++d = " + (++d) + " (now d = " + d + ")");
+            Console.WriteLine("-- (decrement): e starts 3; e-- returns " + (d--) + ", now e = " + d);
+            Console.WriteLine("decrement: subtracts 1 from the value that it is attached to");
 
-            int e = 3;
-            Console.WriteLine("-- (decrement): e starts 3; e-- returns " + (e--) + ", now e = " + e);
-            int f = 3;
-            Console.WriteLine("-- (decrement): --f decrements first: --f = " + (--f) + " (now f = " + f + ")");
-
-            Console.WriteLine("%  (modulo): 17 % 5 = " + (17 % 5) + " (remainder after division)");
+            Console.WriteLine("%  (modulo): 17 % 5 = " + (17 % 5));
+            Console.WriteLine("modulo: results is the remainder of from the division");
         }
     }
 }
