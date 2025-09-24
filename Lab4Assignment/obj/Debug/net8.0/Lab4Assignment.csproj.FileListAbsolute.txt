@@ -1,0 +1,15 @@
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\bin\Debug\net8.0\Lab4DiceThrowing.exe
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\bin\Debug\net8.0\Lab4DiceThrowing.deps.json
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\bin\Debug\net8.0\Lab4DiceThrowing.runtimeconfig.json
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\bin\Debug\net8.0\Lab4DiceThrowing.dll
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\bin\Debug\net8.0\Lab4DiceThrowing.pdb
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4Assignment.GeneratedMSBuildEditorConfig.editorconfig
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4Assignment.AssemblyInfoInputs.cache
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4Assignment.AssemblyInfo.cs
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4Assignment.csproj.CoreCompileInputs.cache
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4Assignment.sourcelink.json
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4DiceThrowing.dll
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\refint\Lab4DiceThrowing.dll
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4DiceThrowing.pdb
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\Lab4Assignment.genruntimeconfig.cache
+A:\GitHub Repositories\AdvancedGameDev\Lab4Assignment\obj\Debug\net8.0\ref\Lab4DiceThrowing.dll
