@@ -155,10 +155,19 @@ namespace Lab4DiceThrowing
         }
 
         //------ Show Results for Both Dices ------
-        private void AnnounceTwo(Player p, (string tokenA, string tokenB) pick, (int a, int b) rolls)
-        {
-            Console.WriteLine(p.Name + " rolls " + pick.tokenA + ": " + rolls.a + " | " + pick.tokenB + ": " + rolls.b);
-        }
+        private void AnnounceTwo(Player p, (string tokenA, string tokenB) pick, (int a, int b) rolls) 
+        { 
+            string calloutA = Callout(pick.tokenA, rolls.a); 
+            string calloutB = Callout(pick.tokenB, rolls.b); 
+            Console.WriteLine(p.Name + " rolls " + pick.tokenA + ": " + rolls.a + calloutA + " | " + pick.tokenB + ": " + rolls.b + calloutB); } 
+
+        //------ Callout results ------
+        private static string Callout(string token, int roll) 
+        { 
+            int sides = DiceRoller.TokenToSides(token); 
+            double avg = (sides + 1) / 2.0; if (roll == sides) return " — Maximum!"; 
+            if (roll == 1) return " — Oh No!"; 
+            if (roll > avg) return " — Above Avg!"; return ""; }
 
         //------ Evaluate Hand (pair/straight/high card) ------
         private struct Hand
