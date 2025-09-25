@@ -83,9 +83,18 @@ namespace Lab4DiceThrowing
             Console.WriteLine("======================================");
             Console.WriteLine("          Lab 4 - Dice Poker          ");
             Console.WriteLine("======================================");
-            Console.WriteLine("Date: " + today);
-            Console.WriteLine("Rules: Each side picks TWO dices from {d6, d8, d10, d12} and rolls.");
-            Console.WriteLine("Hands: Pair > Straight (Consecutive number) > High Card.");
+            Console.WriteLine();
+            Console.WriteLine("           Date: " + today            );
+            Console.WriteLine();
+            Console.WriteLine("Rules: Each side picks TWO dices from \n" +
+                              "         {d6, d8, d10, d12} \n" +
+                              "              and rolls.");
+            Console.WriteLine();
+            Console.WriteLine("======================================");
+            Console.WriteLine();
+            Console.WriteLine("  Hands: Pair > Straight > High Card.");
+            Console.WriteLine();
+            Console.WriteLine("======================================");
         }
 
         //------ Displays the Outro Message ------
@@ -174,7 +183,7 @@ namespace Lab4DiceThrowing
         {
             public int Rank;     // Pair=3, Straight=2, High=1
             public int Hi;       // highest die
-            public int Low;       // lowest die
+            public int Low;      // lowest die
             public string Label; // text label for printing
         }
         private static Hand EvaluateHand(int x, int y)

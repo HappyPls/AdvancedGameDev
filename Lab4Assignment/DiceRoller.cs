@@ -30,8 +30,6 @@ namespace Lab4DiceThrowing
         // returns 0 if not valid
         public static int TokenToSides(string token)
         {
-            if (string.IsNullOrWhiteSpace(token)) return 0;
-
             token = token.Trim().ToLower();
             if (token == "d6") return 6;
             if (token == "d8") return 8;
