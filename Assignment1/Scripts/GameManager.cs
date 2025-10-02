@@ -264,7 +264,7 @@ namespace Lab4DiceThrowing
         }
 
         /// <summary>
-        /// Rolls two dice from token strings. (Validation earlier should prevent 0s.)
+        /// Rolls two dice from token strings.
         /// </summary>
         private (int a, int b) RollTwo(string tokenA, string tokenB)
         {
@@ -326,7 +326,7 @@ namespace Lab4DiceThrowing
         }
 
         /// <summary>
-        /// Formats dice list from _diceMap as "(d6, d8, ...)".
+        /// Formats dice list from _diceMap
         /// </summary>
         private string FormatDiceList()
         {
@@ -357,7 +357,8 @@ namespace Lab4DiceThrowing
         }
 
         /// <summary>
-        /// Parses token ("d10" or "10") to sides ONLY if it exists in allowedSides; otherwise returns 0.
+        /// Parses token ("d10" or "10") to sides ONLY if it exists in allowedSides
+        /// Otherwise returns 0.
         /// </summary>
         private int ParseTokenToSidesInSet(string token, List<int> allowedSides)
         {
@@ -367,7 +368,8 @@ namespace Lab4DiceThrowing
         }
 
         /// <summary>
-        /// Converts a token to sides; returns 0 if not recognized in _diceMap.
+        /// Converts a token to sides
+        /// returns 0 if not recognized in _diceMap.
         /// </summary>
         private int TokenToSidesOrZero(string token)
         {
@@ -376,9 +378,6 @@ namespace Lab4DiceThrowing
             return _diceMap.ContainsKey(s) ? s : 0;
         }
 
-        /// <summary>
-        /// Minimal inner Player for name/score (kept to match your layout).
-        /// </summary>
         private class Player
         {
             public string Name;
