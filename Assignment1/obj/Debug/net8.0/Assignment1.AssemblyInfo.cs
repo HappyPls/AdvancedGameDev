@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Lab4DiceThrowing")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+869061eee75af2d4ae5a3797d50b07603c9e9977")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+68a2c93dc95a0f300f0731c42535de93d50e66d0")]
 [assembly: System.Reflection.AssemblyProductAttribute("Lab4DiceThrowing")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Lab4DiceThrowing")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
