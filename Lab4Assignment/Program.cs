@@ -7,7 +7,7 @@ namespace Lab4DiceThrowing
         static void Main()
         {
             var gm = new GameManager();
-            gm.RunOneRound();
+            gm.RunBestOfFive();
 
             Console.WriteLine();
             Console.WriteLine("Press Enter to Exit.");

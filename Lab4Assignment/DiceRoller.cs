@@ -11,36 +11,27 @@ namespace Lab4DiceThrowing
         // random number generator
         private static Random _rng = new Random();
 
-        // list of allowed dice tokens
-        private static string[] _allowed = { "d6", "d8", "d10", "d12" };
-
-        // check if token is valid
-        public static bool IsAllowedToken(string token)
+        /// <summary>
+        /// Parses txt like "d10" or "10" into a sides value. Returns 0 if invalid.
+        /// </summary>
+        /// <param name="input"> User text such as "d8" or "8" </param>
+        /// <returns></returns>
+        public static int ParseSides(string input)
         {
-            if (string.IsNullOrWhiteSpace(token)) return false;
-            token = token.Trim().ToLower();
-            foreach (string d in _allowed)
-            {
-                if (token == d) return true;
-            }
-            return false;
+            if (string.IsNullOrEmpty(input)) return 0;
+            string t = input.Trim().ToLower();
+            if (t.StartsWith("d")) t = t.Substring(1);
+
+            int sides;
+            if (!int.TryParse(t, out sides)) return 0;
+            if (sides < 2) return 0;
+            return sides;
         }
-
-        // convert token (like "d10") to number of sides
-        // returns 0 if not valid
-        public static int TokenToSides(string token)
-        {
-            token = token.Trim().ToLower();
-            if (token == "d6") return 6;
-            if (token == "d8") return 8;
-            if (token == "d10") return 10;
-            if (token == "d12") return 12;
-
-            return 0; // not valid
-        }
-
-        // roll a die with given number of sides
-        // if sides < 2, just return 0
+        /// <summary>
+        /// Rolls dice in range based in sides. Returns 0 if sides <= 2.
+        /// </summary>
+        /// <param name="sides"> Number of sides on die </param>
+        /// <returns></returns>
         public static int Roll(int sides)
         {
             if (sides < 2) return 0;
