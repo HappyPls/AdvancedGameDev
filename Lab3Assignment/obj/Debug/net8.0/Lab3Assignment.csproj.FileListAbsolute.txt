@@ -1,0 +1,15 @@
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.GeneratedMSBuildEditorConfig.editorconfig
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.AssemblyInfoInputs.cache
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.AssemblyInfo.cs
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.csproj.CoreCompileInputs.cache
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.sourcelink.json
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\bin\Debug\net8.0\Lab3Assignment.exe
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\bin\Debug\net8.0\Lab3Assignment.deps.json
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\bin\Debug\net8.0\Lab3Assignment.runtimeconfig.json
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\bin\Debug\net8.0\Lab3Assignment.dll
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\bin\Debug\net8.0\Lab3Assignment.pdb
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.dll
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\refint\Lab3Assignment.dll
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.pdb
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\Lab3Assignment.genruntimeconfig.cache
+A:\GitHub Repositories\AdvancedGameDev\Lab3Assignment\obj\Debug\net8.0\ref\Lab3Assignment.dll
