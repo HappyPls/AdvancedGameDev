@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lab4DiceThrowing
+namespace Lab6Dungeon
 {
     /// <summary>
     /// Helper class for dice operations.

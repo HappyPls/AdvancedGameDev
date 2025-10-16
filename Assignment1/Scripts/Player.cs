@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lab4DiceThrowing
+namespace Lab6Dungeon
 {
     /// <summary>
     /// Base player data and stats
@@ -17,6 +17,9 @@ namespace Lab4DiceThrowing
         public int RollCount;
         public int EvenCount;
         public int OddCount;
+
+        // Inventory of found dice (consumable).
+        public List<int> InventorySides = new List<int>();
 
         private Random _rng = new Random();
 
@@ -47,12 +50,18 @@ namespace Lab4DiceThrowing
         public void RecordRoll(int value)
         {
             if (value <= 0) return;
+
             RollSum += value;
             RollCount++;
+
             if ((value % 2) == 0) EvenCount += 1; 
             else OddCount += 1;
         }
 
+        /// <summary>
+        /// Choose two dice (by sides) from the available list.
+        /// Human: ask for input. Computer: random.
+        /// </summary>
         public (int aSides, int bSides) ChooseTwoDice(List<int> availableSides)
         {
             if (!IsComputer)
@@ -86,12 +95,15 @@ namespace Lab4DiceThrowing
             else
             {
                 if (availableSides.Count < 2) return (6, 8);
+
                 int i1 = _rng.Next(availableSides.Count);
                 int i2 = i1;
+
                 while (i1 == i2)
                 {
                     i2 = _rng.Next(availableSides.Count);
                 }
+
                 return (availableSides[i1], availableSides[i2]);
             }
         }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 
-namespace Lab4DiceThrowing
+namespace Lab6Dungeon
 {
     /// <summary>
     /// Poker-style dice game (Best-of-5).
@@ -12,11 +13,261 @@ namespace Lab4DiceThrowing
     /// </summary>
     public class GameManager
     {
-        private Random _rng = new Random();
+        public Random Rng = new Random();
 
         // Players
-        private Player _player = new Player("Player");
-        private Player _ai = new Player("Computer");
+        private Player _human = new Player("Player", false);
+        private Player _ai = new Player("Computer", true);
+
+        // -------- Adventure Grid + Rooms + Inventory --------
+
+        /// <summary>
+        /// Runs the Adventure with rooms, search encounters and inventory
+        /// </summary>
+        public void RunAdventure()
+        {
+            AdventureIntro();
+
+            Console.WriteLine("What is your name, traveller?");
+            string name = (Console.ReadLine() ?? "").Trim(); ;
+            if (name == "") name = "Player";
+            _human = new Player(name,false);
+
+            var map = new Map(rows: 3, cols: 3, rng: Rng);
+
+            Console.WriteLine();
+            Console.WriteLine("Type: north/south/east/west to move, 'search' to search, 'inv' to check your inventory, 'help' for help, 'exit' to leave");
+            Console.WriteLine();
+
+            bool running = true;
+
+            while (running)
+            {
+                Room room = map.CurrentRoom();
+                room.OnRoomEntered(this, _human);
+
+                Console.WriteLine();
+                Console.WriteLine("Your move: ");
+                string cmd = (Console.ReadLine() ?? "").Trim().ToLower();
+
+                if (cmd == "n" || cmd == "north" || cmd == "s" || cmd == "south" ||
+                    cmd == "e" || cmd == "east" || cmd == "w" || cmd == "west")
+                {
+                    if (map.TryMove(cmd))
+                    {
+                        room.OnRoomExit(this, _human);
+                        Console.WriteLine("You move " + cmd + "...");
+                    }
+                    else
+                    {
+                        Console.WriteLine("You can't go that way.");
+                    }
+                }
+                else if (cmd == "search")
+                {
+                    room.OnRoomSearched(this, _human);
+                }
+                else if (cmd == "inv")
+                {
+                    PrintInventory();
+                }
+                else if (cmd == "help")
+                {
+                    Console.WriteLine("Commands: n/s/e/w to move, 'search' to look around, 'inv' to see items, 'exit' to leave.");
+                }
+                else if (cmd == "exit")
+                {
+                    Console.WriteLine("You decide to leave the area. Your journey continues elsewhere...");
+                    running = false;
+                }
+                else
+                {
+                    Console.WriteLine("Unknown command. Try again.");
+                }
+                Console.WriteLine();
+            }
+            AdventureOutro();
+        }
+        private void AdventureIntro()
+        {
+            string today = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            Console.WriteLine("======================================");
+            Console.WriteLine("        Lab 6 - Rooms & Inventory     ");
+            Console.WriteLine("======================================");
+            Console.WriteLine("            Date: " + today);
+            Console.WriteLine("Explore rooms, search for treasure, and win dice encounters!");
+            Console.WriteLine("======================================");
+            Console.WriteLine();
+        }
+
+        private void AdventureOutro()
+        {
+            Console.WriteLine("Thanks for exploring! See you next time.");
+        }
+
+        /// <summary>
+        /// Pretty inventory print with counts: d6 x 1, d8 x 4
+        /// </summary>
+        private void PrintInventory()
+        {
+            if (_human.InventorySides.Count == 0)
+            {
+                Console.WriteLine("Inventory is empty.");
+                return;
+            }
+
+            var counts = CountBySides(_human.InventorySides);
+
+            Console.WriteLine("Inventory:");
+            foreach (var kv in Sorted(counts))
+            {
+                Console.WriteLine($"d{kv.Key} x {kv.Value}");
+            }
+        }
+
+        /// <summary>
+        /// Award a random bundle of dice to the player.
+        /// </summary>
+        public void GrantRandomLoot(Player player, int minCount, int maxCount)
+        {
+            if (minCount < 1) minCount = 1;
+            if (maxCount < minCount) maxCount = minCount;
+
+            int[] pool = new[] { 4, 6, 8, 10, 12, 14, 16, 24 };
+            int grant = Rng.Next(minCount, maxCount + 1);
+
+            int[] gained = new int[grant];
+            for (int i = 0; i < grant; i++)
+            {
+                int idx = Rng.Next(0, pool.Length);
+                int die = pool[idx];
+                player.InventorySides.Add(die);
+                gained[i] = die;
+            }
+
+            PrintDiceBundle(gained);
+        }
+
+        /// <summary>
+        /// Helper: print a bundle like "d6 x 1", "d8 x 2".
+        /// </summary>
+        public void PrintDiceBundle(int[] gained)
+        {
+            var counts = CountBySides(gained);
+            foreach (var kv in Sorted(counts))
+            {
+                Console.WriteLine($"  d{kv.Key} x {kv.Value}");
+            }
+        }
+
+        /// <summary>
+        /// Returns a dictionary of counts by sides
+        /// </summary>
+        private Dictionary<int, int> CountBySides(IEnumerable<int> sidesList)
+        {
+            var map = new Dictionary<int, int>();
+            foreach (int s in sidesList)
+            {
+                if (s < 2) continue;
+                if (!map.ContainsKey(s)) map[s] = 0;
+                map[s] += 1;
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Sorts counts by sides
+        /// </summary>
+        private List<KeyValuePair<int, int>> Sorted(Dictionary<int, int> counts)
+        {
+            var list = new List<KeyValuePair<int, int>>(counts);
+            list.Sort((a, b) => a.Key.CompareTo(b.Key));
+            return list;
+        }
+
+        /// <summary>
+        /// Plays ONE poker-style round vs a computer opponent.
+        /// Available dice = base set (permanent) + inventory (consumable).
+        /// If the human uses an inventory die, one copy is removed after the round.
+        /// Returns true if the human wins.
+        /// </summary>
+        public bool PlayPokerEncounter(Player human)
+        {
+            var cpu = new Player("CPU", true);
+
+            // Base, permanent dice:
+            var baseSet = new HashSet<int> { 6, 8, 12, 20 };
+
+            // Merge base + inventory to offer choices
+            var choiceSet = new HashSet<int>(baseSet);
+            for (int i = 0; i < human.InventorySides.Count; i++) choiceSet.Add(human.InventorySides[i]);
+
+            var available = new List<int>(choiceSet);
+            available.Sort();
+
+            Console.WriteLine();
+            Console.WriteLine("Available dice for this fight: " + string.Join(", ", available.ConvertAll(s => "d" + s)));
+
+            var (hA, hB) = human.ChooseTwoDice(available);
+            var (cA, cB) = cpu.ChooseTwoDice(available);
+
+            Console.WriteLine($"{human.Name} picked d{hA} & d{hB}.  {cpu.Name} picked d{cA} & d{cB}.");
+
+            int h1 = DiceRoller.Roll(hA);
+            int h2 = DiceRoller.Roll(hB);
+            int c1 = DiceRoller.Roll(cA);
+            int c2 = DiceRoller.Roll(cB);
+
+            human.RecordRoll(h1); human.RecordRoll(h2);
+            cpu.RecordRoll(c1); cpu.RecordRoll(c2);
+
+            Console.WriteLine($"{human.Name} rolls {h1} and {h2}.");
+            Console.WriteLine($"{cpu.Name} rolls {c1} and {c2}.");
+
+            var hHand = EvaluateHand(h1, h2);
+            var cHand = EvaluateHand(c1, c2);
+
+            Console.WriteLine($"{human.Name} Hand: {hHand.Label}");
+            Console.WriteLine($"{cpu.Name} Hand: {cHand.Label}");
+
+            int cmp = CompareHands(hHand, cHand);
+
+            // Consume selected dice from inventory if they exist there (base dice do not get consumed)
+            ConsumeIfInInventory(human, hA);
+            ConsumeIfInInventory(human, hB);
+
+            if (cmp > 0)
+            {
+                human.Score += 1;
+                Console.WriteLine($"{human.Name} wins the encounter! (+1 point)");
+                return true;
+            }
+            else if (cmp < 0)
+            {
+                cpu.Score += 1;
+                Console.WriteLine($"{cpu.Name} wins the encounter! (+1 point to the foe)");
+                return false;
+            }
+            else
+            {
+                Console.WriteLine("Encounter is a draw. No points awarded.");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// If 'sides' exists in player's inventory, remove ONE copy (consuming the die).
+        /// Writes a note when consumed.
+        /// </summary>
+        private void ConsumeIfInInventory(Player human, int sides)
+        {
+            int idx = human.InventorySides.IndexOf(sides);
+            if (idx >= 0)
+            {
+                human.InventorySides.RemoveAt(idx);
+                Console.WriteLine($"(Consumed one d{sides} from your inventory.)");
+            }
+        }
 
         /// <summary>
         /// Central dice catalog: sides -> token (e.g., 12 -> "d12").
@@ -35,7 +286,7 @@ namespace Lab4DiceThrowing
             Console.Write("Enter your name: ");
             string name = (Console.ReadLine() ?? "").Trim();
             if (name == "") name = "Player";
-            _player = new Player(name);
+            _human = new Player(name, false);
 
             // Choose dice set
             SetupDiceCatalog();
@@ -48,7 +299,7 @@ namespace Lab4DiceThrowing
             Console.WriteLine();
 
             // Best-of-5 loop
-            _player.Score = 0;
+            _human.Score = 0;
             _ai.Score = 0;
 
             int maxRounds = 5;
@@ -61,27 +312,27 @@ namespace Lab4DiceThrowing
                 Console.WriteLine();
                 Console.WriteLine("=== Round " + round + " ===");
 
-                bool humanFirst = _rng.Next(0, 2) == 0;
+                bool humanFirst = Rng.Next(0, 2) == 0;
                 Console.WriteLine(humanFirst
-                    ? _player.Name + " considers their choice first..."
+                    ? _human.Name + " considers their choice first..."
                     : _ai.Name + " considers their choice first...");
 
                 var playerPick = ChooseTwoTokens(availableSides);
                 var aiPick = AutoPickTwoTokens(availableSides);
 
-                Console.WriteLine(_player.Name + " picks " + playerPick.tokenA + " & " + playerPick.tokenB + ".");
+                Console.WriteLine(_human.Name + " picks " + playerPick.tokenA + " & " + playerPick.tokenB + ".");
                 Console.WriteLine(_ai.Name + " picks " + aiPick.tokenA + " & " + aiPick.tokenB + ".");
 
                 var playerRolls = RollTwo(playerPick.tokenA, playerPick.tokenB);
                 var aiRolls = RollTwo(aiPick.tokenA, aiPick.tokenB);
 
-                AnnounceTwo(_player, playerPick, playerRolls);
+                AnnounceTwo(_human, playerPick, playerRolls);
                 AnnounceTwo(_ai, aiPick, aiRolls);
 
                 var playerHand = EvaluateHand(playerRolls.a, playerRolls.b);
                 var aiHand = EvaluateHand(aiRolls.a, aiRolls.b);
 
-                Console.WriteLine(_player.Name + " Hand: " + playerHand.Label);
+                Console.WriteLine(_human.Name + " Hand: " + playerHand.Label);
                 Console.WriteLine(_ai.Name + " Hand: " + aiHand.Label);
 
                 int result = CompareHands(playerHand, aiHand);
@@ -91,14 +342,14 @@ namespace Lab4DiceThrowing
                 }
                 else
                 {
-                    Player winner = result > 0 ? _player : _ai;
+                    Player winner = result > 0 ? _human : _ai;
                     Console.WriteLine("Winner: " + winner.Name + " (+1 point)");
                     winner.Score += 1;
                 }
 
-                Console.WriteLine("Score — " + _player.Name + ": " + _player.Score + " | " + _ai.Name + ": " + _ai.Score);
+                Console.WriteLine("Score — " + _human.Name + ": " + _human.Score + " | " + _ai.Name + ": " + _ai.Score);
 
-                if (_player.Score >= winsToTakeMatch || _ai.Score >= winsToTakeMatch)
+                if (_human.Score >= winsToTakeMatch || _ai.Score >= winsToTakeMatch)
                 {
                     Console.WriteLine("Someone reached the required wins for Best-of-5!");
                     break;
@@ -108,9 +359,9 @@ namespace Lab4DiceThrowing
             // Summary
             Console.WriteLine();
             Console.WriteLine("=== Match Summary ===");
-            Console.WriteLine("Final Score — " + _player.Name + ": " + _player.Score + " | " + _ai.Name + ": " + _ai.Score);
-            if (_player.Score > _ai.Score) Console.WriteLine(_player.Name + " wins the match!");
-            else if (_ai.Score > _player.Score) Console.WriteLine(_ai.Name + " wins the match!");
+            Console.WriteLine("Final Score — " + _human.Name + ": " + _human.Score + " | " + _ai.Name + ": " + _ai.Score);
+            if (_human.Score > _ai.Score) Console.WriteLine(_human.Name + " wins the match!");
+            else if (_ai.Score > _human.Score) Console.WriteLine(_ai.Name + " wins the match!");
             else Console.WriteLine("The match ends in a tie!");
 
             Outro();
@@ -245,7 +496,7 @@ namespace Lab4DiceThrowing
             var sorted = new List<int>(allowedSides);
             sorted.Sort();
 
-            int roll = _rng.Next(0, 100);
+            int roll = Rng.Next(0, 100);
             if (sorted.Count >= 2 && roll < 70)
             {
                 int a = sorted[sorted.Count - 1];
@@ -253,11 +504,11 @@ namespace Lab4DiceThrowing
                 return (_diceMap[a], _diceMap[b]);
             }
 
-            int i1 = _rng.Next(sorted.Count);
+            int i1 = Rng.Next(sorted.Count);
             int i2 = i1;
             while (i2 == i1)
             {
-                i2 = _rng.Next(sorted.Count);
+                i2 = Rng.Next(sorted.Count);
             }
 
             return (_diceMap[sorted[i1]], _diceMap[sorted[i2]]);
@@ -376,18 +627,6 @@ namespace Lab4DiceThrowing
             int s = DiceRoller.ParseSides(token);
             if (s < 2) return 0;
             return _diceMap.ContainsKey(s) ? s : 0;
-        }
-
-        private class Player
-        {
-            public string Name;
-            public int Score;
-
-            public Player(string name)
-            {
-                Name = string.IsNullOrWhiteSpace(name) ? "Player" : name.Trim();
-                Score = 0;
-            }
         }
     }
 }
