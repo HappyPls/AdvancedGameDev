@@ -2,13 +2,13 @@
 
 namespace Dungeon
 {
-    public class EncounterRoom : Room
+    public class BossEncounterRoom : Room
     {
         public bool Cleared;
 
         public override string RoomDescription()
         {
-            return "A tense arena-like space. You feel watched.";
+            return "An ominous chamber echoes with heavy steps.";
         }
 
         public override void OnRoomEntered(GameManager gm, Player player)
@@ -20,22 +20,22 @@ namespace Dungeon
             }
             else
             {
-                Console.WriteLine("You return to the Arena.");
+                Console.WriteLine("You return to the ominous chamber.");
             }
 
             if (Cleared)
             {
-                Console.WriteLine("The arena is quiet. No foes remain.");
+                Console.WriteLine("The chamber is quiet. No foes remain.");
                 Console.WriteLine();
                 Console.WriteLine("Type: north/south/east/west to move, 'search' to search, 'inv' to check your inventory, 'exit' to end the game");
                 return;
             }
 
-            Console.WriteLine("An opponent appears! Time for a duel! (Poker Rules)");
+            EnemySpawner.ForceGolemSpawn();
+            Console.WriteLine("A colossal presence looms...");
             gm.StartEncounter();
 
-            // If StartEncounter() killed the enemy, GameManager will mark this room cleared.
-            // Next time you come back (including after closing inventory), no new spawn.
+            var room = gm != null ? gm.GetType() : null; // no-op to keep structure; cleared is set by GameManager after kill
 
             Console.WriteLine();
             Console.WriteLine("Type: north/south/east/west to move, 'search' to search, 'inv' to check your inventory, 'exit' to end the game");
@@ -43,12 +43,12 @@ namespace Dungeon
 
         public override void OnRoomSearched(GameManager gm, Player player)
         {
-            Console.WriteLine("You scout the arena, but there is nothing to loot here.");
+            Console.WriteLine("Nothing to loot here.");
         }
 
         public override void OnRoomExit(GameManager gm, Player player)
         {
-            Console.WriteLine("You leave the room...");
+            Console.WriteLine("You leave the chamber...");
         }
     }
 }

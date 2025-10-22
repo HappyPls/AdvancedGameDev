@@ -8,9 +8,9 @@ namespace Dungeon
             : base(
                 name: "Cave Slime",
                 level: 1,
-                maxHp: 110,
+                maxHp: 100,
                 armour: 0,
-                damageMin: 6,
+                damageMin: 8,
                 damageMax: 18,
                 critChance: 10,
                 critMultiplier: 160,

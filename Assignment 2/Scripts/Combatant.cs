@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dungeon
 {
     public class Combatant
     {
-        // Basic identity information
+        // Basic information
         public string Name { get; protected set; }
         public int Level { get; protected set; }
 
@@ -27,8 +23,23 @@ namespace Dungeon
         public int[] DiceSides { get; protected set; }
         protected Random Rng;
 
-        // Constructor initializes the combatant’s stats and dice
-        public Combatant(string name, int level, int maxHp, int hP, int armour, int damageMin, int damageMax, int critChance, int critMultiplier, int[] diceSides, Random rng)
+        // Armour DR tuning (instance-level, not const)
+        protected double ArmourCon;
+        protected double MaxDR;
+
+        //initializes the combatant’s stats and dice
+        public Combatant(
+            string name,
+            int level,
+            int maxHp,
+            int hP,
+            int armour,
+            int damageMin,
+            int damageMax,
+            int critChance,
+            int critMultiplier,
+            int[] diceSides,
+            Random rng)
         {
             Name = name;
             Level = level;
@@ -41,17 +52,23 @@ namespace Dungeon
             CritMultiplier = critMultiplier;
             DiceSides = diceSides != null ? (int[])diceSides.Clone() : new int[] { 6, 8, 12, 20 };
             Rng = rng ?? new Random();
+
+            ArmourCon = 50.0;
+            MaxDR = 0.75;
         }
 
-        // Quick property to check if combatant is still alive
+        //check if combatant is still alive
         public bool IsAlive => HP > 0;
 
-        // Handles basic attack logic and color-coded output
+        // Handles basic attack logic
         public virtual void Attack(Combatant target, int multiplierPercent)
         {
-            int damage = RollDamage();
+            int raw = RollDamage();
             if (multiplierPercent < 0) multiplierPercent = 0;
-            damage = damage * multiplierPercent / 100;
+            raw = raw * multiplierPercent / 100;
+
+            // check the actual damage after mitigation
+            int shown = target.CheckMitigatedDamage(raw);
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write(Name);
@@ -65,11 +82,13 @@ namespace Dungeon
             Console.Write(" for ");
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(damage);
+            Console.Write(shown);
             Console.ResetColor();
 
             Console.WriteLine(" damage!");
-            target.TakeDamage(damage);
+
+            // Apply the damage (no penetration by default)
+            target.TakeDamage(raw);
         }
 
         // Determines base and critical damage
@@ -90,12 +109,10 @@ namespace Dungeon
             return dmg;
         }
 
-        // Applies incoming damage after armor reduction
-        public virtual void TakeDamage(int amount)
+        // Applies incoming damage after armour reduction (optional penetration)
+        public virtual void TakeDamage(int amount, int flatPen = 0, double pctPen = 0.0)
         {
-            int reduced = amount - Armour;
-            if (reduced < 0) reduced = 0;
-
+            int reduced = MitigatedDamage(amount, Armour, flatPen, pctPen);
             HP -= reduced;
             if (HP < 0) HP = 0;
 
@@ -110,11 +127,34 @@ namespace Dungeon
             Console.WriteLine(" damage (" + HP + "/" + MaxHp + ")");
         }
 
+        public int CheckMitigatedDamage(int incoming, int flatPen = 0, double pctPen = 0.0)
+        {
+            return MitigatedDamage(incoming, Armour, flatPen, pctPen);
+        }
+
         // Restores HP, capped at MaxHp
         public void Heal(int amount)
         {
             HP += amount;
             if (HP > MaxHp) HP = MaxHp;
+        }
+
+        // Base Mitigation, set at a min DR of 1.
+        protected virtual int MitigatedDamage(int incoming, int armour, int flatPen, double pctPen)
+        {
+            if (incoming <= 0) return 0;
+
+            // Effective armour after penetration
+            double effArmour = System.Math.Max(0.0, armour - flatPen);
+            pctPen = System.Math.Max(0.0, System.Math.Min(pctPen, 0.95)); // clamp 0..0.95 so pct pen can’t zero armour
+            effArmour *= (1.0 - pctPen);
+
+            double dr = effArmour <= 0.0 ? 0.0 : (effArmour / (effArmour + ArmourCon));
+            dr = System.Math.Min(dr, MaxDR);
+
+            int mitigated = (int)System.Math.Ceiling(incoming * (1.0 - dr));
+            if (mitigated < 1) mitigated = 1; // never 0
+            return mitigated;
         }
     }
 }

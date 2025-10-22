@@ -9,7 +9,7 @@ namespace Dungeon
         private Random _rng = new Random();
 
         // Main combat loop
-        public void StartCombat(Player player, Enemy enemy, Map map, int prevRow, int prevCol)
+        public CombatOutcome StartCombat(Player player, Enemy enemy, Map map, int prevRow, int prevCol)
         {
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -34,24 +34,19 @@ namespace Dungeon
 
                 if (choice == "1")
                 {
-                    // Show dice inventory clearly
                     PrintDiceInventory(player);
 
-                    // Player chooses 5 dice for this attack
                     var diceSet = player.ChooseFiveDice(player.InventorySides);
                     int[] rolls = DiceRoller.RollDice(new int[] { diceSet.a, diceSet.b, diceSet.c, diceSet.d, diceSet.e });
 
-                    // Show rolls and evaluate poker hand
                     DiceRoller.PrintRolls(rolls);
                     var result = DiceRoller.Evaluate5(rolls);
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"Hand: {result.Name}  (x{result.Multiplier / 100.0:F2} damage)");
                     Console.ResetColor();
 
-                    // Perform attack
                     PlayerAttack(player, enemy, result.Multiplier);
 
-                    // Enemy counterattack
                     if (enemy.HP > 0)
                         EnemyAttack(enemy, player);
                 }
@@ -65,7 +60,7 @@ namespace Dungeon
                 {
                     Console.WriteLine("You flee from the battle!");
                     map.SetPosition(prevRow, prevCol);
-                    return;
+                    return CombatOutcome.Fled;
                 }
                 else
                 {
@@ -73,22 +68,22 @@ namespace Dungeon
                 }
             }
 
-            // End of combat summary
             if (player.HP <= 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("You have been defeated...");
                 Console.ResetColor();
+                return CombatOutcome.Defeat;
             }
-            else if (enemy.HP <= 0)
+            else
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"You defeated the {enemy.Name}!");
                 Console.ResetColor();
+                return CombatOutcome.Victory;
             }
         }
 
-        // Prints player's dice inventory grouped by type
         private void PrintDiceInventory(Player player)
         {
             Console.WriteLine();
@@ -109,7 +104,6 @@ namespace Dungeon
             Console.WriteLine();
         }
 
-        // Player attacks with multiplier
         private void PlayerAttack(Player player, Enemy enemy, int multiplierPercent)
         {
             Console.WriteLine();
@@ -120,7 +114,6 @@ namespace Dungeon
             player.Attack(enemy, multiplierPercent);
         }
 
-        // Enemy attack
         private void EnemyAttack(Enemy enemy, Player player)
         {
             Console.WriteLine();
@@ -131,7 +124,6 @@ namespace Dungeon
             enemy.Attack(player, 100);
         }
 
-        // Player uses consumable
         private void UseConsumable(Player player)
         {
             if (player.Consumables.Count == 0)
@@ -152,16 +144,16 @@ namespace Dungeon
             string input = Console.ReadLine();
             if (int.TryParse(input, out int index))
             {
+                if (index < 0 || index >= player.Consumables.Count)
+                {
+                    Console.WriteLine("Invalid choice.");
+                    return;
+                }
+
                 string name = player.Consumables[index].Name;
                 bool used = player.UseConsumableByIndex(index);
                 if (used)
-                {
                     Console.WriteLine($"You used a {name}!");
-                }
-                else
-                {
-                    Console.WriteLine("Invalid choice.");
-                }
             }
             else
             {

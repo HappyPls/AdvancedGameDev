@@ -12,7 +12,6 @@ namespace Dungeon
 
         public void RunAdventure()
         {
-
             Console.WriteLine("Welcome to Dicey Dungeon!");
             Console.Write("Enter your hero's name: ");
             string name = (Console.ReadLine() ?? "").Trim();
@@ -21,9 +20,12 @@ namespace Dungeon
 
             _map = new Map(rows: 5, cols: 5, rng: Rng);
             _player = new Player(name: name, isComputer: false);
+            EnemySpawner.ForceGolemSpawn();
 
             Console.WriteLine("Welcome, " + _player.Name + "!");
             PrintGameIntro();
+            Console.WriteLine();
+            PrintPokerRules();
             Console.WriteLine();
             Console.Write("Press Enter to continue...");
             Console.ReadLine();
@@ -32,11 +34,10 @@ namespace Dungeon
 
             while (playing && _player.HP > 0 && !HasWon)
             {
-                Console.WriteLine();
                 Room room = _map.CurrentRoom();
                 room.OnRoomEntered(this, _player);
+                Console.WriteLine();
                 Console.WriteLine("(Visited this room " + _map.CurrentRoom().VisitCount + " time(s))");
-
                 Console.WriteLine();
                 PrintHelp();
 
@@ -65,13 +66,9 @@ namespace Dungeon
                 {
                     bool moved = _map.TryMove(cmd);
                     if (moved)
-                    {
                         room.OnRoomExit(this, _player);
-                    }
                     else
-                    {
                         Console.WriteLine("You cannot go that way.");
-                    }
                 }
                 else
                 {
@@ -86,9 +83,7 @@ namespace Dungeon
             }
 
             if (HasWon)
-            {
                 Console.WriteLine("You defeated the Iron Golem and escape the dungeon!");
-            }
 
             Console.WriteLine("Thanks for playing!");
         }
@@ -105,6 +100,12 @@ namespace Dungeon
 
             if (enemy.HP <= 0)
             {
+                var enc = _map.CurrentRoom() as EncounterRoom;
+                if (enc != null) enc.Cleared = true;
+
+                var boss = _map.CurrentRoom() as BossEncounterRoom;
+                if (boss != null) boss.Cleared = true;
+
                 if (enemy is IronGolem)
                 {
                     HasWon = true;
@@ -189,6 +190,23 @@ namespace Dungeon
             Console.WriteLine("You wake up in a dungeon with no memory of how you got here.");
             Console.WriteLine("You know that you have to kill an Iron Golem to get an exit stone to leave the place");
             Console.WriteLine("What do you do?");
+        }
+        private void PrintPokerRules()
+        {
+            Console.WriteLine();
+            Console.WriteLine("== POKER HAND RANKINGS ==");
+            Console.WriteLine("Combat in this game depends on the dice you roll!");
+            Console.WriteLine("Your attack power depends on your dice combination. Here’s the ranking from strongest to weakest:");
+            Console.WriteLine("   Five of a Kind   - All dice show the same number. (Highest damage multiplier)");
+            Console.WriteLine("   Four of a Kind   - Four dice of the same number.");
+            Console.WriteLine("   Full House       - Three of one number and two of another.");
+            Console.WriteLine("   Straight         - Five dice in sequence (e.g., 2-3-4-5-6).");
+            Console.WriteLine("   Three of a Kind  - Three dice showing the same number.");
+            Console.WriteLine("   Two Pair         - Two different pairs (e.g., 3-3 and 5-5).");
+            Console.WriteLine("   One Pair         - Two dice showing the same number.");
+            Console.WriteLine("   High Card        - None of the above; the highest die decides base damage.");
+            Console.WriteLine();
+            Console.WriteLine("Higher hands give stronger multipliers — aim for combinations!");
         }
     }
 }
